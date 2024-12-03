@@ -1,13 +1,16 @@
+.global _start
+_start:
+
 .equ ADDR_Front_Buffer, 0xFF203020
 .equ ADDR_Slider_Switches, 0xFF200040
 
 # SDRAM memory locations. Each will be the same memory size as the Front Buffer
 
  .equ VGA_Back_Buffer1, 0xC1000000
- .equ VGA_End_Back1, 0xC103FFFF
+ .equ VGA_End_Back1, 0xC103C280
 
  .equ VGA_Back_Buffer2, 0xC2000000
- .equ VGA_End_Back2, 0xC203FFFF
+ .equ VGA_End_Back2, 0xC203C280
 
 # colour values for the Pixel buffer
 
@@ -18,17 +21,28 @@
  .equ white,  0xFFFF
 
 # Fill back buffer1 memory locations with the colour red
-
  ldr  r2, =red
  ldr  r3, =VGA_Back_Buffer1
  ldr  r4, =VGA_End_Back1
 
 # counter to increment through each back buffer1 memory location until 256k locations have been filled with red Pixel value
 
- count1:
+  mov  r5, #0
+ count1y:
+  
+  ldr  r5, =0x140
+ count1x: 
   strh r2, [r3], #2
-  cmp r3,r4
-  ble  count1
+  sub  r5, #1
+  cmp  r5,#0
+  bne  count1x
+  cmp  r3, r4
+  beq  hax
+  strh r2, [r3]
+  add  r3, #1024
+ hax:
+  cmp  r3, r4
+  ble  count1y
 
 # Fill back buffer2 memory locations with the colour green
 
@@ -75,7 +89,7 @@
   cmp r3,r4
   beq check 
 
-#change pointer to back buffer2 
+# change pointer to back buffer2 
 
  mov r4, r3      // keep track of  present back buffer
  str r6, [r5]    // swap buffer
@@ -83,7 +97,7 @@
 # Wait for status bit to go low. This indicates the pointer is properly set
 
  swapcheck2:
- ldr r3, [r5, #12]   #load status bit
+ ldr r3, [r5, #12]   // load status bit
  ands r3,r3, r6
  bne swapcheck2
 

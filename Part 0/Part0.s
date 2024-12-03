@@ -1,3 +1,6 @@
+.global _start
+_start:
+
 .equ ADDR_Front_Buffer, 0xFF203020
 .equ ADDR_Slider_Switches, 0xFF200040
 
@@ -18,7 +21,6 @@
  .equ white,  0xFFFF
 
 # Fill back buffer1 memory locations with the colour red
-
  ldr  r2, =red
  ldr  r3, =VGA_Back_Buffer1
  ldr  r4, =VGA_End_Back1
@@ -75,7 +77,7 @@
   cmp r3,r4
   beq check 
 
-#change pointer to back buffer2 
+# change pointer to back buffer2 
 
  mov r4, r3      // keep track of  present back buffer
  str r6, [r5]    // swap buffer
@@ -83,7 +85,7 @@
 # Wait for status bit to go low. This indicates the pointer is properly set
 
  swapcheck2:
- ldr r3, [r5, #12]   #load status bit
+ ldr r3, [r5, #12]   // load status bit
  ands r3,r3, r6
  bne swapcheck2
 

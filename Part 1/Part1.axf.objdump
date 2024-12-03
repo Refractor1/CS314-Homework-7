@@ -1,0 +1,153 @@
+
+Part1.axf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <__cs3_interrupt_vector>:
+ .equ green,  0x07E0
+ .equ yellow,  0xFFE0
+ .equ white,  0xFFFF
+
+# Fill back buffer1 memory locations with the colour red
+ ldr  r2, =yellow
+   0:	e59f20a0 	ldr	r2, [pc, #160]	; a8 <swapcheck2+0x10>
+ ldr  r3, =VGA_Back_Buffer1
+   4:	e3a034c1 	mov	r3, #-1056964608	; 0xc1000000
+ ldr  r4, =VGA_End_Back1
+   8:	e59f409c 	ldr	r4, [pc, #156]	; ac <swapcheck2+0x14>
+
+# counter to increment through each back buffer1 memory location until 256k locations have been filled with red Pixel value
+
+  mov  r5, #0
+   c:	e3a05000 	mov	r5, #0
+
+00000010 <count1y>:
+ count1y:
+  
+  ldr  r5, =0x140
+  10:	e3a05d05 	mov	r5, #320	; 0x140
+
+00000014 <count1x>:
+ count1x: 
+  strh r2, [r3], #2
+  14:	e0c320b2 	strh	r2, [r3], #2
+  sub  r5, #1
+  18:	e2455001 	sub	r5, r5, #1
+  cmp  r5,#0
+  1c:	e3550000 	cmp	r5, #0
+  bne  count1x
+  20:	1afffffb 	bne	14 <count1x>
+  cmp  r3, r4
+  24:	e1530004 	cmp	r3, r4
+  beq  hax
+  28:	0a000000 	beq	30 <hax>
+  strh r2, [r3]
+  2c:	e1c320b0 	strh	r2, [r3]
+
+00000030 <hax>:
+ hax:
+  cmp  r3, r4
+  30:	e1530004 	cmp	r3, r4
+  ble  count1y
+  34:	dafffff5 	ble	10 <count1y>
+
+# Fill back buffer2 memory locations with the colour green
+
+ ldr r2, =green
+  38:	e3a02e7e 	mov	r2, #2016	; 0x7e0
+ ldr r3, =VGA_Back_Buffer2
+  3c:	e3a034c2 	mov	r3, #-1040187392	; 0xc2000000
+ ldr r4, =VGA_End_Back2
+  40:	e59f4068 	ldr	r4, [pc, #104]	; b0 <swapcheck2+0x18>
+
+00000044 <count2>:
+
+# counter to increment through each back buffer2 memory location until 256k locations have been filled with green Pixel value
+
+ count2:
+  strh r2, [r3], #2
+  44:	e0c320b2 	strh	r2, [r3], #2
+  cmp  r3, r4
+  48:	e1530004 	cmp	r3, r4
+  ble count2
+  4c:	dafffffc 	ble	44 <count2>
+
+#  load pointer for back Buffer1
+
+  ldr r5, =ADDR_Front_Buffer
+  50:	e59f505c 	ldr	r5, [pc, #92]	; b4 <swapcheck2+0x1c>
+  ldr r3, =VGA_Back_Buffer1
+  54:	e3a034c1 	mov	r3, #-1056964608	; 0xc1000000
+  str r3, [r5, #4] 	// set pointer location of back buffer1
+  58:	e5853004 	str	r3, [r5, #4]
+  mov  r6, #1
+  5c:	e3a06001 	mov	r6, #1
+  str r6, [r5]          //  enable double buffering
+  60:	e5856000 	str	r6, [r5]
+
+00000064 <swapcheck>:
+
+# Make sure status bit goes low. This indicates the pointers are properly set
+
+ swapcheck:
+ ldr r3,[r5, #12]
+  64:	e595300c 	ldr	r3, [r5, #12]
+ ands r3,r3, r6
+  68:	e0133006 	ands	r3, r3, r6
+ bne swapcheck
+  6c:	1afffffc 	bne	64 <swapcheck>
+
+#  load pointer for back Buffer2
+
+  ldr r3, =VGA_Back_Buffer2
+  70:	e3a034c2 	mov	r3, #-1040187392	; 0xc2000000
+  str r3, [r5, #4] 	//  set start location of Back Buffer2
+  74:	e5853004 	str	r3, [r5, #4]
+
+
+# load slider switch value  
+
+  ldr r2,  =ADDR_Slider_Switches
+  78:	e59f2038 	ldr	r2, [pc, #56]	; b8 <swapcheck2+0x20>
+  mov r4, #0
+  7c:	e3a04000 	mov	r4, #0
+
+00000080 <check>:
+
+ check:
+  ldr r3, [r2]
+  80:	e5923000 	ldr	r3, [r2]
+  and r3,r3, #1
+  84:	e2033001 	and	r3, r3, #1
+  cmp r3,r4
+  88:	e1530004 	cmp	r3, r4
+  beq check 
+  8c:	0afffffb 	beq	80 <check>
+
+# change pointer to back buffer2 
+
+ mov r4, r3      // keep track of  present back buffer
+  90:	e1a04003 	mov	r4, r3
+ str r6, [r5]    // swap buffer
+  94:	e5856000 	str	r6, [r5]
+
+00000098 <swapcheck2>:
+
+# Wait for status bit to go low. This indicates the pointer is properly set
+
+ swapcheck2:
+ ldr r3, [r5, #12]   // load status bit
+  98:	e595300c 	ldr	r3, [r5, #12]
+ ands r3,r3, r6
+  9c:	e0133006 	ands	r3, r3, r6
+ bne swapcheck2
+  a0:	1afffffc 	bne	98 <swapcheck2>
+
+ b check
+  a4:	eafffff5 	b	80 <check>
+  a8:	0000ffe0 	.word	0x0000ffe0
+  ac:	c103c280 	.word	0xc103c280
+  b0:	c203c280 	.word	0xc203c280
+  b4:	ff203020 	.word	0xff203020
+  b8:	ff200040 	.word	0xff200040

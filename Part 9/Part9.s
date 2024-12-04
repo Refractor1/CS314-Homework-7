@@ -1,5 +1,5 @@
 .equ ADDR_Front_Buffer, 0xFF203020
-.equ ADDR_Push_Buttons, 0xFF20302C
+.equ ADDR_Video_Timer, 0xFF20302C
 
 # SDRAM memory locations. Each will be the same memory size as the Front Buffer
 
@@ -29,8 +29,8 @@ yBitMax:  .word 0x00037000
 rectanglePosition: .word 0xC101E12C
 
 directionFlag: .word 1    // 1 for right, -1 for left
-vDirectionFlag: .word 1   // 1 for down, -1 for up
-  
+ydirectionFlag: .word 1    // 1 for down, -1 for up
+
 .global _start
 _start:
 # Fill back buffer1 memory locations with the colour red
@@ -155,7 +155,7 @@ skipOverDraws:
 
 # load slider switch value  
 
-  ldr r0, =ADDR_Push_Buttons
+  ldr r0, =ADDR_Video_Timer
   mov r8, #1
 reDraw:
   // Draw to Buffer1
@@ -173,21 +173,16 @@ check:
   cmp r1, r8                // Compare with previous state
   beq check                 // If same, keep checking
   
-  // If we get here, the key state changed
   ldr r5, =rectanglePosition
   ldr r3, [r5]              // Load current position
   
-  // Load horizontal direction flag
+  // Load direction flag
   ldr r11, =directionFlag
   ldr r12, [r11]
   
-  // Load vertical direction flag
-  ldr r9, =vDirectionFlag
-  ldr r10, [r9]
-  
-  // Check horizontal boundaries
-  ldr r6, =xBitMax
-  ldr r6, [r6]
+  // Check boundaries
+  ldr r6, =xBitMax          // Load address of xBitMax
+  ldr r6, [r6]              // Load the actual value
   ldr r7, =xBitMask
   ldr r7, [r7]
   and r7, r3, r7           // Get current x position
@@ -197,39 +192,51 @@ check:
   blt not_at_right
   mov r12, #-1             // Change direction to left
   str r12, [r11]
-  b check_vertical
+  b apply_xmovement
   
 not_at_right:
   // Check if at left edge (x = 0)
   cmp r7, #0
-  bgt check_vertical
+  bgt apply_xmovement
   mov r12, #1              // Change direction to right
   str r12, [r11]
   
-check_vertical:
-  // Check vertical boundaries
-  ldr r6, =yBitMax
-  ldr r6, [r6]
+apply_xmovement:
+  // Move based on direction (r12 contains direction)
+  add r3, r3, r12, LSL #1  // Multiply direction by 2 for pixel movement
+  str r3, [r5]             // Store new position
+  mov r8, r1               // Update previous state
+  
+  // Load direction flag
+  ldr r11, =ydirectionFlag
+  ldr r12, [r11]
+  
+  // Check boundaries
+  ldr r6, =yBitMax          // Load address of xBitMax
+  ldr r6, [r6]              // Load the actual value
   ldr r7, =yBitMask
   ldr r7, [r7]
-  and r7, r3, r7           // Get current y position
+  and r7, r3, r7           // Get current x position
   
-  // Check if at bottom edge
+  // Check if at right edge
   cmp r7, r6
   blt not_at_bottom
-  mov r10, #-1             // Change direction to up
-  str r10, [r9]
-  b apply_movement
+  mov r12, #-1             // Change direction to up
+  str r12, [r11]
+  b apply_ymovement
   
 not_at_bottom:
-  // Check if at top edge (y = 0)
+  // Check if at left edge (x = 0)
   cmp r7, #0
-  bgt apply_movement
-
-apply_movement:
-  add r3, r3, #0x2          // Move one pixel
-  str r3, [r5]              // Store new position
-  mov r8, r1                // Update previous state
+  bgt apply_ymovement
+  mov r12, #1              // Change direction to down
+  str r12, [r11]
+  
+apply_ymovement:
+  // Move based on direction (r12 contains direction)
+  add r3, r3, r12, LSL #10  // Multiply direction by 2 for pixel movement
+  str r3, [r5]             // Store new position
+  mov r8, r1               // Update previous state
 
   // Draw to Buffer2
   ldr r2, =black

@@ -37,9 +37,9 @@ _start:
   cmp  r5,#0
   bne  count1x
   cmp  r3, r4
-  beq  hax
+  beq  hax              //Skip over extra pixel if we are at the limit
   strh r2, [r3]
-  add  r3, #1024
+  add  r3, #0x2C0
  hax:
   cmp  r3, r4
   ble  count1y

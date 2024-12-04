@@ -1,0 +1,217 @@
+
+Part5.axf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <__cs3_interrupt_vector>:
+ .equ white,  0xFFFF
+ .equ black,  0x0000
+
+ .equ y_Shift, 0x3FB
+# Fill back buffer1 memory locations with the colour red
+ ldr  r2, =black
+   0:	e3a02000 	mov	r2, #0
+ ldr  r3, =VGA_Back_Buffer1
+   4:	e3a034c1 	mov	r3, #-1056964608	; 0xc1000000
+ ldr  r4, =VGA_End_Back1
+   8:	e59f40f4 	ldr	r4, [pc, #244]	; 104 <swapcheck2+0x10>
+
+# counter to increment through each back buffer1 memory location until 256k locations have been filled with red Pixel value
+
+  mov  r5, #0
+   c:	e3a05000 	mov	r5, #0
+
+00000010 <count1y>:
+ count1y:
+  
+  ldr  r5, =0x140
+  10:	e3a05d05 	mov	r5, #320	; 0x140
+
+00000014 <count1x>:
+ count1x: 
+  strh r2, [r3], #2
+  14:	e0c320b2 	strh	r2, [r3], #2
+  sub  r5, #1
+  18:	e2455001 	sub	r5, r5, #1
+  cmp  r5, #0
+  1c:	e3550000 	cmp	r5, #0
+  bne  count1x
+  20:	1afffffb 	bne	14 <count1x>
+  cmp  r3, r4
+  24:	e1530004 	cmp	r3, r4
+  beq  hax1              //Skip over extra pixel if we are at the limit
+  28:	0a000001 	beq	34 <hax1>
+  strh r2, [r3]
+  2c:	e1c320b0 	strh	r2, [r3]
+  add  r3, #0x180
+  30:	e2833d06 	add	r3, r3, #384	; 0x180
+
+00000034 <hax1>:
+ hax1:
+  cmp  r3, r4
+  34:	e1530004 	cmp	r3, r4
+  ble  count1y
+  38:	dafffff4 	ble	10 <count1y>
+
+  ldr  r2, =blue
+  3c:	e3a0201f 	mov	r2, #31
+  ldr  r3, =VGA_Back_Buffer1_Line
+  40:	e59f30c0 	ldr	r3, [pc, #192]	; 108 <swapcheck2+0x14>
+
+  mov  r6, #20
+  44:	e3a06014 	mov	r6, #20
+  mov  r5, #0
+  48:	e3a05000 	mov	r5, #0
+
+0000004c <countLiney>:
+ countLiney:
+
+  ldr r5, =0x28
+  4c:	e3a05028 	mov	r5, #40	; 0x28
+
+00000050 <countLinex>:
+  countLinex:
+  strh r2, [r3], #2
+  50:	e0c320b2 	strh	r2, [r3], #2
+  sub  r5, #1
+  54:	e2455001 	sub	r5, r5, #1
+  cmp  r5, #0
+  58:	e3550000 	cmp	r5, #0
+  bne  countLinex
+  5c:	1afffffb 	bne	50 <countLinex>
+
+  sub  r6, r6, #1
+  60:	e2466001 	sub	r6, r6, #1
+  cmp  r6, #0
+  64:	e3560000 	cmp	r6, #0
+  add  r3, r3, #0xB0
+  68:	e28330b0 	add	r3, r3, #176	; 0xb0
+  add  r3, r3, #0x300
+  6c:	e2833c03 	add	r3, r3, #768	; 0x300
+  bne  countLiney
+  70:	1afffff5 	bne	4c <countLiney>
+
+
+# Fill back buffer2 memory locations with the colour green
+
+ ldr r2, =green
+  74:	e3a02e7e 	mov	r2, #2016	; 0x7e0
+ ldr r3, =VGA_Back_Buffer2
+  78:	e3a034c2 	mov	r3, #-1040187392	; 0xc2000000
+ ldr r4, =VGA_End_Back2
+  7c:	e59f4088 	ldr	r4, [pc, #136]	; 10c <swapcheck2+0x18>
+
+00000080 <count2y>:
+
+# counter to increment through each back buffer2 memory location until 256k locations have been filled with green Pixel value
+
+ count2y:
+  
+  ldr  r5, =0x140
+  80:	e3a05d05 	mov	r5, #320	; 0x140
+
+00000084 <count2x>:
+ count2x: 
+  strh r2, [r3], #2
+  84:	e0c320b2 	strh	r2, [r3], #2
+  sub  r5, #1
+  88:	e2455001 	sub	r5, r5, #1
+  cmp  r5, #0
+  8c:	e3550000 	cmp	r5, #0
+  bne  count2x
+  90:	1afffffb 	bne	84 <count2x>
+  cmp  r3, r4
+  94:	e1530004 	cmp	r3, r4
+  beq  hax2              //Skip over extra pixel if we are at the limit
+  98:	0a000001 	beq	a4 <hax2>
+  strh r2, [r3]
+  9c:	e1c320b0 	strh	r2, [r3]
+  add  r3, #0x180
+  a0:	e2833d06 	add	r3, r3, #384	; 0x180
+
+000000a4 <hax2>:
+ hax2:
+  cmp  r3, r4
+  a4:	e1530004 	cmp	r3, r4
+  ble  count2y
+  a8:	dafffff4 	ble	80 <count2y>
+
+#  load pointer for back Buffer1
+
+  ldr r5, =ADDR_Front_Buffer
+  ac:	e59f505c 	ldr	r5, [pc, #92]	; 110 <swapcheck2+0x1c>
+  ldr r3, =VGA_Back_Buffer1
+  b0:	e3a034c1 	mov	r3, #-1056964608	; 0xc1000000
+  str r3, [r5, #4] 	// set pointer location of back buffer1
+  b4:	e5853004 	str	r3, [r5, #4]
+  mov  r6, #1
+  b8:	e3a06001 	mov	r6, #1
+  str r6, [r5]          //  enable double buffering
+  bc:	e5856000 	str	r6, [r5]
+
+000000c0 <swapcheck>:
+
+# Make sure status bit goes low. This indicates the pointers are properly set
+
+ swapcheck:
+ ldr r3,[r5, #12]
+  c0:	e595300c 	ldr	r3, [r5, #12]
+ ands r3,r3, r6
+  c4:	e0133006 	ands	r3, r3, r6
+ bne swapcheck
+  c8:	1afffffc 	bne	c0 <swapcheck>
+
+#  load pointer for back Buffer2
+
+  ldr r3, =VGA_Back_Buffer2
+  cc:	e3a034c2 	mov	r3, #-1040187392	; 0xc2000000
+  str r3, [r5, #4] 	//  set start location of Back Buffer2
+  d0:	e5853004 	str	r3, [r5, #4]
+
+
+# load slider switch value  
+
+  ldr r2,  =ADDR_Slider_Switches
+  d4:	e59f2038 	ldr	r2, [pc, #56]	; 114 <swapcheck2+0x20>
+  mov r4, #0
+  d8:	e3a04000 	mov	r4, #0
+
+000000dc <check>:
+
+ check:
+  ldr r3, [r2]
+  dc:	e5923000 	ldr	r3, [r2]
+  and r3,r3, #1
+  e0:	e2033001 	and	r3, r3, #1
+  cmp r3,r4
+  e4:	e1530004 	cmp	r3, r4
+  beq check 
+  e8:	0afffffb 	beq	dc <check>
+
+# change pointer to back buffer2 
+
+ mov r4, r3      // keep track of  present back buffer
+  ec:	e1a04003 	mov	r4, r3
+ str r6, [r5]    // swap buffer
+  f0:	e5856000 	str	r6, [r5]
+
+000000f4 <swapcheck2>:
+
+# Wait for status bit to go low. This indicates the pointer is properly set
+
+ swapcheck2:
+ ldr r3, [r5, #12]   // load status bit
+  f4:	e595300c 	ldr	r3, [r5, #12]
+ ands r3,r3, r6
+  f8:	e0133006 	ands	r3, r3, r6
+ bne swapcheck2
+  fc:	1afffffc 	bne	f4 <swapcheck2>
+
+ b check
+ 100:	eafffff5 	b	dc <check>
+ 104:	c103c280 	.word	0xc103c280
+ 108:	c101e12c 	.word	0xc101e12c
+ 10c:	c203c280 	.word	0xc203c280
+ 110:	ff203020 	.word	0xff203020
+ 114:	ff200040 	.word	0xff200040

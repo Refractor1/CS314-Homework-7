@@ -19,11 +19,14 @@ _start:
  .equ green,  0x07E0
  .equ yellow,  0xFFE0
  .equ white,  0xFFFF
+ .equ black,  0x0000
 
+ .equ y_Shift, 0x3FB
 # Fill back buffer1 memory locations with the colour red
  ldr  r2, =red
  ldr  r3, =VGA_Back_Buffer1
  ldr  r4, =VGA_End_Back1
+ ldr  r1, =y_Shift
 
 # counter to increment through each back buffer1 memory location until 256k locations have been filled with red Pixel value
 
@@ -34,13 +37,13 @@ _start:
  count1x: 
   strh r2, [r3], #2
   sub  r5, #1
-  cmp  r5,#0
+  cmp  r5, #0
   bne  count1x
   cmp  r3, r4
-  beq  hax              //Skip over extra pixel if we are at the limit
+  beq  hax1              //Skip over extra pixel if we are at the limit
   strh r2, [r3]
-  add  r3, #0x2C0
- hax:
+  add  r3, #0x180
+ hax1:
   cmp  r3, r4
   ble  count1y
 
@@ -52,10 +55,21 @@ _start:
 
 # counter to increment through each back buffer2 memory location until 256k locations have been filled with green Pixel value
 
- count2:
+ count2y:
+  
+  ldr  r5, =0x140
+ count2x: 
   strh r2, [r3], #2
+  sub  r5, #1
+  cmp  r5, #0
+  bne  count2x
   cmp  r3, r4
-  ble count2
+  beq  hax2              //Skip over extra pixel if we are at the limit
+  strh r2, [r3]
+  add  r3, #0x180
+ hax2:
+  cmp  r3, r4
+  ble  count2y
 
 #  load pointer for back Buffer1
 

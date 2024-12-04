@@ -1,5 +1,5 @@
 
-Part1.axf:     file format elf32-littlearm
+Part2.axf:     file format elf32-littlearm
 
 
 Disassembly of section .text:
@@ -58,8 +58,8 @@ Disassembly of section .text:
 
 # Fill back buffer2 memory locations with the colour green
 
- ldr r2, =green
-  40:	e3a02e7e 	mov	r2, #2016	; 0x7e0
+ ldr r2, =blue
+  40:	e3a0201f 	mov	r2, #31
  ldr r3, =VGA_Back_Buffer2
   44:	e3a034c2 	mov	r3, #-1040187392	; 0xc2000000
  ldr r4, =VGA_End_Back2

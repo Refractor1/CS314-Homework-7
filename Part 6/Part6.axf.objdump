@@ -1,0 +1,362 @@
+
+Part6.axf:     file format elf32-littlearm
+
+
+Disassembly of section .text:
+
+00000000 <__cs3_interrupt_vector>:
+rectanglePosition: .word 0xC101E12C
+
+.global _start
+_start:
+# Fill back buffer1 memory locations with the colour red
+ ldr  r2, =black
+   0:	000003fe 	.word	0x000003fe
+
+00000004 <yBitMask>:
+   4:	0003fc00 	.word	0x0003fc00
+
+00000008 <xBitMax>:
+   8:	00000230 	.word	0x00000230
+
+0000000c <yBitMax>:
+   c:	00037000 	.word	0x00037000
+
+00000010 <rectanglePosition>:
+  10:	c101e12c 	.word	0xc101e12c
+
+00000014 <_start>:
+  14:	e3a02000 	mov	r2, #0
+ ldr  r3, =VGA_Back_Buffer1
+  18:	e3a034c1 	mov	r3, #-1056964608	; 0xc1000000
+ ldr  r4, =VGA_End_Back1
+  1c:	e59f41ac 	ldr	r4, [pc, #428]	; 1d0 <swapcheck2+0x10>
+
+ b skipOverDraws
+  20:	ea00003a 	b	110 <skipOverDraws>
+
+00000024 <drawBackground1>:
+# counter to increment through each back buffer1 memory location until 256k locations have been filled with red Pixel value
+drawBackground1:
+  mov  r5, #0
+  24:	e3a05000 	mov	r5, #0
+
+00000028 <count1y>:
+ count1y:
+  
+  mov  r5, #0x140
+  28:	e3a05d05 	mov	r5, #320	; 0x140
+
+0000002c <count1x>:
+ count1x: 
+  strh r2, [r3], #2
+  2c:	e0c320b2 	strh	r2, [r3], #2
+  sub  r5, #1
+  30:	e2455001 	sub	r5, r5, #1
+  cmp  r5, #0
+  34:	e3550000 	cmp	r5, #0
+  bne  count1x
+  38:	1afffffb 	bne	2c <count1x>
+  cmp  r3, r4
+  3c:	e1530004 	cmp	r3, r4
+  beq  hax1              //Skip over extra pixel if we are at the limit
+  40:	0a000001 	beq	4c <hax1>
+  strh r2, [r3]
+  44:	e1c320b0 	strh	r2, [r3]
+  add  r3, #0x180
+  48:	e2833d06 	add	r3, r3, #384	; 0x180
+
+0000004c <hax1>:
+  hax1:
+  cmp  r3, r4
+  4c:	e1530004 	cmp	r3, r4
+  ble  count1y
+  50:	dafffff4 	ble	28 <count1y>
+  bx lr
+  54:	e12fff1e 	bx	lr
+
+  ldr  r3, =VGA_Back_Buffer_Start
+  58:	e59f3174 	ldr	r3, [pc, #372]	; 1d4 <swapcheck2+0x14>
+
+0000005c <drawRectangle1>:
+
+ drawRectangle1:
+  //Color selection and positioning
+  ldr  r2, =blue
+  5c:	e3a0201f 	mov	r2, #31
+  //Size vertical of rectangle
+  mov  r6, #20
+  60:	e3a06014 	mov	r6, #20
+  mov  r5, #0
+  64:	e3a05000 	mov	r5, #0
+
+00000068 <countLiney1>:
+
+  countLiney1:
+  mov  r5, #0x28 //Size horizontal of rectangle
+  68:	e3a05028 	mov	r5, #40	; 0x28
+
+0000006c <countLinex1>:
+  countLinex1:
+  strh r2, [r3], #2
+  6c:	e0c320b2 	strh	r2, [r3], #2
+  sub  r5, #1
+  70:	e2455001 	sub	r5, r5, #1
+  cmp  r5, #0
+  74:	e3550000 	cmp	r5, #0
+  bne  countLinex1
+  78:	1afffffb 	bne	6c <countLinex1>
+  sub  r6, r6, #1
+  7c:	e2466001 	sub	r6, r6, #1
+  cmp  r6, #0
+  80:	e3560000 	cmp	r6, #0
+  add  r3, r3, #0xB0
+  84:	e28330b0 	add	r3, r3, #176	; 0xb0
+  add  r3, r3, #0x300
+  88:	e2833c03 	add	r3, r3, #768	; 0x300
+  bne  countLiney1
+  8c:	1afffff5 	bne	68 <countLiney1>
+  bx lr
+  90:	e12fff1e 	bx	lr
+
+# Fill back buffer2 memory locations with the colour green
+
+ ldr r2, =black
+  94:	e3a02000 	mov	r2, #0
+ ldr r3, =VGA_Back_Buffer2
+  98:	e3a034c2 	mov	r3, #-1040187392	; 0xc2000000
+ ldr r4, =VGA_End_Back2
+  9c:	e59f4134 	ldr	r4, [pc, #308]	; 1d8 <swapcheck2+0x18>
+
+000000a0 <drawBackground2>:
+
+# counter to increment through each back buffer2 memory location until 256k locations have been filled with green Pixel value
+drawBackground2:
+  mov  r5, #0
+  a0:	e3a05000 	mov	r5, #0
+
+000000a4 <count2y>:
+ count2y:
+  
+  mov  r5, #0x140
+  a4:	e3a05d05 	mov	r5, #320	; 0x140
+
+000000a8 <count2x>:
+ count2x: 
+  strh r2, [r3], #2
+  a8:	e0c320b2 	strh	r2, [r3], #2
+  sub  r5, #1
+  ac:	e2455001 	sub	r5, r5, #1
+  cmp  r5, #0
+  b0:	e3550000 	cmp	r5, #0
+  bne  count2x
+  b4:	1afffffb 	bne	a8 <count2x>
+  cmp  r3, r4
+  b8:	e1530004 	cmp	r3, r4
+  beq  hax2              //Skip over extra pixel if we are at the limit
+  bc:	0a000001 	beq	c8 <hax2>
+  strh r2, [r3]
+  c0:	e1c320b0 	strh	r2, [r3]
+  add  r3, #0x180
+  c4:	e2833d06 	add	r3, r3, #384	; 0x180
+
+000000c8 <hax2>:
+  hax2:
+  cmp  r3, r4
+  c8:	e1530004 	cmp	r3, r4
+  ble  count2y
+  cc:	dafffff4 	ble	a4 <count2y>
+  bx lr
+  d0:	e12fff1e 	bx	lr
+
+  ldr  r3, =VGA_Back_Buffer_Start
+  d4:	e59f30f8 	ldr	r3, [pc, #248]	; 1d4 <swapcheck2+0x14>
+
+000000d8 <drawRectangle2>:
+
+ drawRectangle2:
+  //Color selection
+  ldr  r2, =blue
+  d8:	e3a0201f 	mov	r2, #31
+  //Size vertical of rectangle
+  mov  r6, #20
+  dc:	e3a06014 	mov	r6, #20
+  mov  r5, #0
+  e0:	e3a05000 	mov	r5, #0
+
+000000e4 <countLiney2>:
+
+  countLiney2:
+  mov  r5, #0x28 //Size horizontal of rectangle
+  e4:	e3a05028 	mov	r5, #40	; 0x28
+
+000000e8 <countLinex2>:
+  countLinex2:
+  strh r2, [r3], #2
+  e8:	e0c320b2 	strh	r2, [r3], #2
+  sub  r5, #1
+  ec:	e2455001 	sub	r5, r5, #1
+  cmp  r5, #0
+  f0:	e3550000 	cmp	r5, #0
+  bne  countLinex2
+  f4:	1afffffb 	bne	e8 <countLinex2>
+  sub  r6, r6, #1
+  f8:	e2466001 	sub	r6, r6, #1
+  cmp  r6, #0
+  fc:	e3560000 	cmp	r6, #0
+  add  r3, r3, #0xB0
+ 100:	e28330b0 	add	r3, r3, #176	; 0xb0
+  add  r3, r3, #0x300
+ 104:	e2833c03 	add	r3, r3, #768	; 0x300
+  bne  countLiney2
+ 108:	1afffff5 	bne	e4 <countLiney2>
+  bx lr
+ 10c:	e12fff1e 	bx	lr
+
+00000110 <skipOverDraws>:
+
+skipOverDraws:
+#  load pointer for back Buffer1
+
+  ldr r5, =ADDR_Front_Buffer
+ 110:	e59f50c4 	ldr	r5, [pc, #196]	; 1dc <swapcheck2+0x1c>
+  ldr r3, =VGA_Back_Buffer1
+ 114:	e3a034c1 	mov	r3, #-1056964608	; 0xc1000000
+  str r3, [r5, #4] 	// set pointer location of back buffer1
+ 118:	e5853004 	str	r3, [r5, #4]
+  mov r6, #1
+ 11c:	e3a06001 	mov	r6, #1
+  str r6, [r5]          //  enable double buffering
+ 120:	e5856000 	str	r6, [r5]
+
+00000124 <swapcheck>:
+
+# Make sure status bit goes low. This indicates the pointers are properly set
+
+ swapcheck:
+  ldr  r3,[r5, #12]
+ 124:	e595300c 	ldr	r3, [r5, #12]
+  ands r3,r3, r6
+ 128:	e0133006 	ands	r3, r3, r6
+  bne  swapcheck
+ 12c:	1afffffc 	bne	124 <swapcheck>
+
+#  load pointer for back Buffer2
+
+  ldr r3, =VGA_Back_Buffer2
+ 130:	e3a034c2 	mov	r3, #-1040187392	; 0xc2000000
+  str r3, [r5, #4] 	//  set start location of Back Buffer2
+ 134:	e5853004 	str	r3, [r5, #4]
+
+
+# load slider switch value  
+
+  ldr r0, =ADDR_Push_Buttons
+ 138:	e59f00a0 	ldr	r0, [pc, #160]	; 1e0 <swapcheck2+0x20>
+  mov r8, #0
+ 13c:	e3a08000 	mov	r8, #0
+
+00000140 <reDraw>:
+reDraw:
+  // Draw to Buffer1
+  ldr r2, =black
+ 140:	e3a02000 	mov	r2, #0
+  ldr r3, =VGA_Back_Buffer1
+ 144:	e3a034c1 	mov	r3, #-1056964608	; 0xc1000000
+  ldr r4, =VGA_End_Back1
+ 148:	e59f4080 	ldr	r4, [pc, #128]	; 1d0 <swapcheck2+0x10>
+  bl drawBackground1         // Draw background first
+ 14c:	ebffffb4 	bl	24 <drawBackground1>
+  ldr r5, =rectanglePosition
+ 150:	e59f508c 	ldr	r5, [pc, #140]	; 1e4 <swapcheck2+0x24>
+  ldr r3, [r5]              // Load rectangle position
+ 154:	e5953000 	ldr	r3, [r5]
+  bl drawRectangle1         // Draw rectangle (without automatic movement)
+ 158:	ebffffbf 	bl	5c <drawRectangle1>
+
+0000015c <check>:
+
+check:
+  ldr r1, [r0]              // Load pushbutton value
+ 15c:	e5901000 	ldr	r1, [r0]
+  and r1, r1, #8            // Mask for KEY3 (bit 3)
+ 160:	e2011008 	and	r1, r1, #8
+  cmp r1, r8                // Compare with previous state
+ 164:	e1510008 	cmp	r1, r8
+  beq check                 // If same, keep checking
+ 168:	0afffffb 	beq	15c <check>
+  
+  // If we get here, the key state changed
+  ldr r5, =rectanglePosition
+ 16c:	e59f5070 	ldr	r5, [pc, #112]	; 1e4 <swapcheck2+0x24>
+  ldr r3, [r5]              // Load current position
+ 170:	e5953000 	ldr	r3, [r5]
+  
+  // Check if we've reached the maximum x position
+  ldr r6, =xBitMax          // Load address of xBitMax
+ 174:	e59f606c 	ldr	r6, [pc, #108]	; 1e8 <swapcheck2+0x28>
+  ldr r6, [r6]              // Load the actual value from memory
+ 178:	e5966000 	ldr	r6, [r6]
+  ldr r7, =xBitMask
+ 17c:	e59f7068 	ldr	r7, [pc, #104]	; 1ec <swapcheck2+0x2c>
+  ldr r7, [r7]
+ 180:	e5977000 	ldr	r7, [r7]
+  and r7, r3, r7
+ 184:	e0037007 	and	r7, r3, r7
+  cmp r7, r6                // Compare with maximum
+ 188:	e1570006 	cmp	r7, r6
+  bge skip_movement         // Skip if we're at or past max
+ 18c:	aa000001 	bge	198 <skip_movement>
+  
+  add r3, r3, #0x2          // Move one pixel
+ 190:	e2833002 	add	r3, r3, #2
+  str r3, [r5]              // Store new position
+ 194:	e5853000 	str	r3, [r5]
+
+00000198 <skip_movement>:
+skip_movement:
+  mov r8, r1                // Update previous state
+ 198:	e1a08001 	mov	r8, r1
+
+  // Draw to Buffer2
+  ldr r2, =black
+ 19c:	e3a02000 	mov	r2, #0
+  ldr r3, =VGA_Back_Buffer2
+ 1a0:	e3a034c2 	mov	r3, #-1040187392	; 0xc2000000
+  ldr r4, =VGA_End_Back2
+ 1a4:	e59f402c 	ldr	r4, [pc, #44]	; 1d8 <swapcheck2+0x18>
+  bl drawBackground2         // Draw background first
+ 1a8:	ebffffbc 	bl	a0 <drawBackground2>
+  ldr r5, =rectanglePosition
+ 1ac:	e59f5030 	ldr	r5, [pc, #48]	; 1e4 <swapcheck2+0x24>
+  ldr r3, [r5]
+ 1b0:	e5953000 	ldr	r3, [r5]
+  bl drawRectangle2         // Draw rectangle (without automatic movement)
+ 1b4:	ebffffc7 	bl	d8 <drawRectangle2>
+  mov r8, r1      // keep track of  present back buffer
+ 1b8:	e1a08001 	mov	r8, r1
+  str r10, [r9]    // swap buffer
+ 1bc:	e589a000 	str	r10, [r9]
+
+000001c0 <swapcheck2>:
+
+# Wait for status bit to go low. This indicates the pointer is properly set
+
+ swapcheck2:
+  ldr r1, [r9, #12]   // load status bit
+ 1c0:	e599100c 	ldr	r1, [r9, #12]
+  ands r1, r1, r10
+ 1c4:	e011100a 	ands	r1, r1, r10
+  bne swapcheck2
+ 1c8:	1afffffc 	bne	1c0 <swapcheck2>
+
+  b reDraw
+ 1cc:	eaffffdb 	b	140 <reDraw>
+ 1d0:	c103c280 	.word	0xc103c280
+ 1d4:	c101e12c 	.word	0xc101e12c
+ 1d8:	c203c280 	.word	0xc203c280
+ 1dc:	ff203020 	.word	0xff203020
+ 1e0:	ff200050 	.word	0xff200050
+ 1e4:	00000010 	.word	0x00000010
+ 1e8:	00000008 	.word	0x00000008
+ 1ec:	00000000 	.word	0x00000000

@@ -28,6 +28,9 @@ yBitMax:  .word 0x00037000
 
 rectanglePosition: .word 0xC101E12C
 
+directionFlag: .word 1    // 1 for right, -1 for left
+vDirectionFlag: .word 1   // 1 for down, -1 for up
+  
 .global _start
 _start:
 # Fill back buffer1 memory locations with the colour red
@@ -174,18 +177,58 @@ check:
   ldr r5, =rectanglePosition
   ldr r3, [r5]              // Load current position
   
-  // Check if we've reached the maximum x position
-  ldr r6, =xBitMax          // Load address of xBitMax
-  ldr r6, [r6]              // Load the actual value from memory
+  // Load horizontal direction flag
+  ldr r11, =directionFlag
+  ldr r12, [r11]
+  
+  // Load vertical direction flag
+  ldr r9, =vDirectionFlag
+  ldr r10, [r9]
+  
+  // Check horizontal boundaries
+  ldr r6, =xBitMax
+  ldr r6, [r6]
   ldr r7, =xBitMask
   ldr r7, [r7]
-  and r7, r3, r7
-  cmp r7, r6                // Compare with maximum
-  bge skip_movement         // Skip if we're at or past max
+  and r7, r3, r7           // Get current x position
   
+  // Check if at right edge
+  cmp r7, r6
+  blt not_at_right
+  mov r12, #-1             // Change direction to left
+  str r12, [r11]
+  b check_vertical
+  
+not_at_right:
+  // Check if at left edge (x = 0)
+  cmp r7, #0
+  bgt check_vertical
+  mov r12, #1              // Change direction to right
+  str r12, [r11]
+  
+check_vertical:
+  // Check vertical boundaries
+  ldr r6, =yBitMax
+  ldr r6, [r6]
+  ldr r7, =yBitMask
+  ldr r7, [r7]
+  and r7, r3, r7           // Get current y position
+  
+  // Check if at bottom edge
+  cmp r7, r6
+  blt not_at_bottom
+  mov r10, #-1             // Change direction to up
+  str r10, [r9]
+  b apply_movement
+  
+not_at_bottom:
+  // Check if at top edge (y = 0)
+  cmp r7, #0
+  bgt apply_movement
+
+apply_movement:
   add r3, r3, #0x2          // Move one pixel
   str r3, [r5]              // Store new position
-skip_movement:
   mov r8, r1                // Update previous state
 
   // Draw to Buffer2
